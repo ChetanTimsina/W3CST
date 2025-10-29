@@ -35,9 +35,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final user = userCredential.user;
       if (user != null) {
-        if (rememberMe) {
-          await StorageService.saveUserData(user.uid, '', email, '');
-        }
+        // if (rememberMe) {
+        //   await StorageService.saveUserData(user.uid, '', email, '');
+        // }
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const dashBoardScreen()),
