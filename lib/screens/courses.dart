@@ -63,6 +63,43 @@ class _courseScreenState extends State<courseScreen> {
     }
   }
 
+  Future<void> toggleBookmark(String courseName) async {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final docRef = FirebaseFirestore.instance.collection('users').doc(userId);
+
+    final snapshot = await docRef.get();
+    final bookmarks = List<String>.from(snapshot.data()?['bookmarks'] ?? []);
+
+    bool isBookmarked = bookmarks.contains(courseName);
+
+    if (isBookmarked) {
+      await docRef.update({
+        'bookmarks': FieldValue.arrayRemove([courseName]),
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$courseName removed from bookmarks')),
+      );
+    } else {
+      await docRef.set({
+        'bookmarks': FieldValue.arrayUnion([courseName]),
+      }, SetOptions(merge: true));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('$courseName added to bookmarks')));
+    }
+
+    setState(() {
+      bookmarkedCourses[courseName] = !isBookmarked;
+    });
+  }
+
+  Map<String, bool> bookmarkedCourses = {
+    'C Programming': false,
+    'Java Basics': false,
+    'Web Development': false,
+    'Database Management': false,
+  };
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,10 +149,18 @@ class _courseScreenState extends State<courseScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Icon(
-                              Icons.bookmark_add_outlined,
-                              size: 25,
-                              color: Colors.green,
+                            IconButton(
+                              onPressed: () => toggleBookmark('C Programming'),
+                              icon: Icon(
+                                bookmarkedCourses['C Programming'] == true
+                                    ? Icons.bookmark
+                                    : Icons.bookmark_border_outlined,
+                                size: 25,
+                                color:
+                                    bookmarkedCourses['C Programming'] == true
+                                        ? Colors.green
+                                        : Colors.grey,
+                              ),
                             ),
                           ],
                         ),
@@ -169,10 +214,18 @@ class _courseScreenState extends State<courseScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Icon(
-                              Icons.bookmark_add_outlined,
-                              size: 25,
-                              color: Colors.green,
+                            IconButton(
+                              onPressed: () => toggleBookmark('Java Basics'),
+                              icon: Icon(
+                                bookmarkedCourses['Java Basics'] == true
+                                    ? Icons.bookmark
+                                    : Icons.bookmark_border_outlined,
+                                size: 25,
+                                color:
+                                    bookmarkedCourses['Java Basics'] == true
+                                        ? Colors.green
+                                        : Colors.grey,
+                              ),
                             ),
                           ],
                         ),
@@ -226,10 +279,19 @@ class _courseScreenState extends State<courseScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Icon(
-                              Icons.bookmark_add_outlined,
-                              size: 25,
-                              color: Colors.green,
+                            IconButton(
+                              onPressed:
+                                  () => toggleBookmark('Web Development'),
+                              icon: Icon(
+                                bookmarkedCourses['Web Development'] == true
+                                    ? Icons.bookmark
+                                    : Icons.bookmark_border_outlined,
+                                size: 25,
+                                color:
+                                    bookmarkedCourses['Web Development'] == true
+                                        ? Colors.green
+                                        : Colors.grey,
+                              ),
                             ),
                           ],
                         ),
@@ -283,10 +345,20 @@ class _courseScreenState extends State<courseScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Icon(
-                              Icons.bookmark_add_outlined,
-                              size: 25,
-                              color: Colors.green,
+                            IconButton(
+                              onPressed:
+                                  () => toggleBookmark('Database Management'),
+                              icon: Icon(
+                                bookmarkedCourses['Database Management'] == true
+                                    ? Icons.bookmark
+                                    : Icons.bookmark_border_outlined,
+                                size: 25,
+                                color:
+                                    bookmarkedCourses['Database Management'] ==
+                                            true
+                                        ? Colors.green
+                                        : Colors.grey,
+                              ),
                             ),
                           ],
                         ),
