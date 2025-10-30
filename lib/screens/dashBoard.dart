@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 //importing Screens for navigation
 import 'courses.dart';
 import 'bookmarks.dart';
 import 'quiz.dart';
 import 'about.dart';
+import 'Login_screen.dart';
 
 class dashBoardScreen extends StatefulWidget {
   const dashBoardScreen({super.key});
@@ -40,6 +42,21 @@ class _dashBoardScreenState extends State<dashBoardScreen> {
         backgroundColor: const Color.fromARGB(255, 3, 62, 91),
         foregroundColor: Colors.white,
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+              );
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Log Out Successful")),
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
