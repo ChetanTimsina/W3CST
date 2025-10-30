@@ -1,73 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
-class courseScreen extends StatefulWidget {
-  const courseScreen({super.key});
+class bookmarkScreen extends StatefulWidget {
+  const bookmarkScreen({super.key});
 
   @override
-  State<courseScreen> createState() => _courseScreenState();
+  State<bookmarkScreen> createState() => _bookmarkScreenState();
 }
 
-class _courseScreenState extends State<courseScreen> {
-  final TextEditingController coursetitleController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
-
-  Future<void> sendToAdmin() async {
-    final coursetitle = coursetitleController.text.trim();
-    final description = descriptionController.text.trim();
-
-    if (coursetitle.isEmpty || description.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill in all fields")),
-      );
-      return;
-    }
-
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("User not logged in")));
-        return;
-      }
-
-      final userId = user.uid;
-
-      Map<String, dynamic> courseData = {
-        'title': coursetitle,
-        'description': description,
-        'createdAt': DateTime.now().toIso8601String(),
-      };
-
-      DocumentReference userDoc = FirebaseFirestore.instance
-          .collection('adminApproval')
-          .doc(userId);
-
-      await userDoc.set({
-        'courses': FieldValue.arrayUnion([courseData]),
-      }, SetOptions(merge: true));
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Course sent for admin approval")),
-      );
-
-      coursetitleController.clear();
-      descriptionController.clear();
-    } catch (e) {
-      print('Error saving course: $e');
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Error: $e")));
-    }
-  }
-
+class _bookmarkScreenState extends State<bookmarkScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Course'),
+        title: const Text('bookmark'),
         backgroundColor: const Color.fromARGB(255, 3, 62, 91),
         foregroundColor: Colors.white,
         centerTitle: true,
@@ -112,11 +57,7 @@ class _courseScreenState extends State<courseScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Icon(
-                              Icons.bookmark_add_outlined,
-                              size: 25,
-                              color: Colors.green,
-                            ),
+                            Icon(Icons.bookmark, size: 25, color: Colors.green),
                           ],
                         ),
                         SizedBox(height: 20),
@@ -169,11 +110,7 @@ class _courseScreenState extends State<courseScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Icon(
-                              Icons.bookmark_add_outlined,
-                              size: 25,
-                              color: Colors.green,
-                            ),
+                            Icon(Icons.bookmark, size: 25, color: Colors.green),
                           ],
                         ),
                         SizedBox(height: 20),
@@ -226,16 +163,12 @@ class _courseScreenState extends State<courseScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Icon(
-                              Icons.bookmark_add_outlined,
-                              size: 25,
-                              color: Colors.green,
-                            ),
+                            Icon(Icons.bookmark, size: 25, color: Colors.green),
                           ],
                         ),
                         SizedBox(height: 20),
                         Text(
-                          "Dive into modern web development. Learn HTML5, CSS3, and JavaScript to build responsive and interactive websites. Includes front-end frameworks introduction.",
+                          "Dive into modern web development. Learn HTML5, CSS3, and JavaScript to build responsive and interactive websites. Includes front-end bookmarks introduction.",
                         ),
                         SizedBox(height: 20),
                         LinearProgressIndicator(
@@ -283,11 +216,7 @@ class _courseScreenState extends State<courseScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Icon(
-                              Icons.bookmark_add_outlined,
-                              size: 25,
-                              color: Colors.green,
-                            ),
+                            Icon(Icons.bookmark, size: 25, color: Colors.green),
                           ],
                         ),
                         SizedBox(height: 20),
@@ -307,40 +236,6 @@ class _courseScreenState extends State<courseScreen> {
             ],
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: Text('Add New Course'),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      decoration: InputDecoration(labelText: 'Course Name'),
-                      controller: coursetitleController,
-                    ),
-                    TextField(
-                      decoration: InputDecoration(labelText: 'Description'),
-                      controller: descriptionController,
-                      keyboardType: TextInputType.multiline,
-                      maxLines: null,
-                    ),
-                    SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed:
-                          () => {Navigator.of(context).pop(), sendToAdmin()},
-                      child: Text('Submit'),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
-        child: Icon(Icons.add),
       ),
     );
   }

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 //importing Screens for navigation
 import 'courses.dart';
+import 'bookmarks.dart';
+import 'quiz.dart';
+import 'about.dart';
 
 class dashBoardScreen extends StatefulWidget {
   const dashBoardScreen({super.key});
@@ -101,6 +104,7 @@ class _dashBoardScreenState extends State<dashBoardScreen> {
                 ),
               ),
               const SizedBox(height: 20),
+              const Text('Featured Topics', style: TextStyle(fontSize: 20)),
               SizedBox(
                 height: 290,
                 child: ListView.separated(
@@ -185,7 +189,7 @@ class _dashBoardScreenState extends State<dashBoardScreen> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 childAspectRatio: 1,
-                mainAxisSpacing: 12,
+                mainAxisSpacing: 5,
                 crossAxisSpacing: 12,
                 children: [
                   Card(
@@ -194,42 +198,43 @@ class _dashBoardScreenState extends State<dashBoardScreen> {
                     ),
                     elevation: 3,
                     child: Padding(
-                      padding: const EdgeInsets.all(12.0),
+                      padding: const EdgeInsets.all(20.0),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Image.asset(
                                 'assets/images/Icons/courses.png',
-                                width: 50,
-                                height: 50,
+                                width: 30,
+                                height: 30,
+                                color: Colors.blue,
                               ),
-                              const SizedBox(width: 6),
+                              const Text(
+                                'Courses',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                                textAlign: TextAlign.start,
+                              ),
                               Image.asset(
                                 'assets/images/Icons/rightarrow.png',
                                 width: 24,
                                 height: 24,
+                                color: Colors.blue,
                               ),
                             ],
                           ),
-                          const SizedBox(height: 12),
-                          const Text(
-                            'Courses',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
+
                           const Text(
                             'Explore all learning paths',
-                            textAlign: TextAlign.center,
+                            textAlign: TextAlign.start,
                             style: TextStyle(fontSize: 13),
                           ),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               TextButton(
                                 onPressed: () {
@@ -251,6 +256,7 @@ class _dashBoardScreenState extends State<dashBoardScreen> {
                                 'assets/images/Icons/rightarrow.png',
                                 width: 16,
                                 height: 16,
+                                color: Colors.blue,
                               ),
                             ],
                           ),
@@ -264,53 +270,64 @@ class _dashBoardScreenState extends State<dashBoardScreen> {
                     ),
                     elevation: 3,
                     child: Padding(
-                      padding: const EdgeInsets.all(12.0),
+                      padding: const EdgeInsets.all(20.0),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Image.asset(
-                                'assets/images/Icons/framework.png',
-                                width: 50,
-                                height: 50,
+                                'assets/images/Icons/bookmarks.png',
+                                width: 30,
+                                height: 30,
+                                color: Colors.blue,
                               ),
-                              const SizedBox(width: 6),
+                              const Text(
+                                'Bookmarks',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
                               Image.asset(
                                 'assets/images/Icons/rightarrow.png',
                                 width: 24,
                                 height: 24,
+                                color: Colors.blue,
                               ),
                             ],
                           ),
-                          const SizedBox(height: 12),
+
                           const Text(
-                            'Frameworks',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          const Text(
-                            'Master new tech stacks',
-                            textAlign: TextAlign.center,
+                            'Your saved Lessons',
+                            textAlign: TextAlign.start,
                             style: TextStyle(fontSize: 13),
                           ),
                           const SizedBox(height: 12),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                'Go to Frameworks',
-                                style: TextStyle(fontSize: 12),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => const bookmarkScreen(),
+                                    ),
+                                  );
+                                },
+                                child: const Text(
+                                  'Go to Bookmarks',
+                                  style: TextStyle(fontSize: 12),
+                                ),
                               ),
-                              const SizedBox(width: 4),
                               Image.asset(
                                 'assets/images/Icons/rightarrow.png',
                                 width: 16,
                                 height: 16,
+                                color: Colors.blue,
                               ),
                             ],
                           ),
@@ -324,53 +341,66 @@ class _dashBoardScreenState extends State<dashBoardScreen> {
                     ),
                     elevation: 3,
                     child: Padding(
-                      padding: const EdgeInsets.all(12.0),
+                      padding: const EdgeInsets.all(20.0),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Image.asset(
                                 'assets/images/Icons/quiz.png',
-                                width: 50,
-                                height: 50,
+                                width: 30,
+                                height: 30,
+                                color: Colors.blue,
                               ),
-                              const SizedBox(width: 6),
+                              const Text(
+                                'Quizzes',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                                textAlign: TextAlign.start,
+                              ),
                               Image.asset(
                                 'assets/images/Icons/rightarrow.png',
                                 width: 24,
                                 height: 24,
+                                color: Colors.blue,
                               ),
                             ],
                           ),
-                          const SizedBox(height: 12),
-                          const Text(
-                            'Quizzes',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
+
                           const Text(
                             'Test Your Knowledge',
-                            textAlign: TextAlign.center,
+                            textAlign: TextAlign.start,
                             style: TextStyle(fontSize: 13),
                           ),
                           const SizedBox(height: 12),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                'Go to Quizzes',
-                                style: TextStyle(fontSize: 12),
+                              TextButton(
+                                onPressed:
+                                    () => {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) => const quizScreen(),
+                                        ),
+                                      ),
+                                    },
+                                child: const Text(
+                                  'Go to Quizzes',
+                                  style: TextStyle(fontSize: 12),
+                                ),
                               ),
-                              const SizedBox(width: 4),
                               Image.asset(
                                 'assets/images/Icons/rightarrow.png',
                                 width: 16,
                                 height: 16,
+                                color: Colors.blue,
                               ),
                             ],
                           ),
@@ -384,53 +414,63 @@ class _dashBoardScreenState extends State<dashBoardScreen> {
                     ),
                     elevation: 3,
                     child: Padding(
-                      padding: const EdgeInsets.all(12.0),
+                      padding: const EdgeInsets.all(20.0),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Image.asset(
                                 'assets/images/Icons/about.png',
-                                width: 50,
-                                height: 50,
+                                width: 30,
+                                height: 30,
+                                color: Colors.blue,
                               ),
-                              const SizedBox(width: 6),
+                              const Text(
+                                'About',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
                               Image.asset(
                                 'assets/images/Icons/rightarrow.png',
                                 width: 24,
                                 height: 24,
+                                color: Colors.blue,
                               ),
                             ],
                           ),
-                          const SizedBox(height: 12),
-                          const Text(
-                            'About',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
+
                           const Text(
                             'Learn more about W3CST',
-                            textAlign: TextAlign.center,
+                            textAlign: TextAlign.start,
                             style: TextStyle(fontSize: 13),
                           ),
                           const SizedBox(height: 12),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                'Go to About',
-                                style: TextStyle(fontSize: 12),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const aboutScreen(),
+                                    ),
+                                  );
+                                },
+                                child: const Text(
+                                  'Go to About',
+                                  style: TextStyle(fontSize: 12),
+                                ),
                               ),
-                              const SizedBox(width: 4),
                               Image.asset(
                                 'assets/images/Icons/rightarrow.png',
                                 width: 16,
                                 height: 16,
+                                color: Colors.blue,
                               ),
                             ],
                           ),
