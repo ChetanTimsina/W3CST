@@ -7,6 +7,7 @@ import 'bookmarks.dart';
 import 'quiz.dart';
 import 'about.dart';
 import 'Login_screen.dart';
+import 'adminApproval.dart';
 
 class dashBoardScreen extends StatefulWidget {
   const dashBoardScreen({super.key});
@@ -30,7 +31,7 @@ class _dashBoardScreenState extends State<dashBoardScreen> {
     {
       'image': 'assets/images/carouselDashboard/carousel3.jpeg',
       'title': 'Join the Dev Revolution',
-      'desc': 'Code smart, build fast, and ship proudly 💪',
+      'desc': 'Code smart, build fast, and ship proudly',
     },
   ];
 
@@ -548,6 +549,17 @@ class _dashBoardScreenState extends State<dashBoardScreen> {
                 ),
               ),
               const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const adminApprovalScreen(),
+                    ),
+                  );
+                },
+                child: const Text('Admin Approval page demo'),
+              ),
             ],
           ),
         ),

@@ -10,8 +10,42 @@ class courseScreen extends StatefulWidget {
 }
 
 class _courseScreenState extends State<courseScreen> {
+  List<Map<String, dynamic>> allRequests = [];
+  @override
+  void initState() {
+    super.initState();
+    loadRequest();
+  }
+
   final TextEditingController coursetitleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
+
+  Future<void> loadRequest() async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    CollectionReference requestsRef = firestore.collection('ApprovedCourses');
+
+    QuerySnapshot querySnapshot = await requestsRef.get();
+
+    List<Map<String, dynamic>> tempList = [];
+
+    for (var doc in querySnapshot.docs) {
+      final userId = doc.id;
+      final data = doc.data() as Map<String, dynamic>;
+      final courses = List<Map<String, dynamic>>.from(data['courses'] ?? []);
+
+      for (var course in courses) {
+        tempList.add({
+          'userId': userId,
+          'title': course['title'],
+          'description': course['description'],
+          'createdAt': course['createdAt'],
+        });
+      }
+    }
+    setState(() {
+      allRequests = tempList;
+    });
+  }
 
   Future<void> sendToAdmin() async {
     final coursetitle = coursetitleController.text.trim();
@@ -376,6 +410,91 @@ class _courseScreenState extends State<courseScreen> {
                   ),
                 ),
               ),
+              allRequests.isEmpty
+                  ? const Center(child: Text('No requests yet'))
+                  : ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: allRequests.length,
+                    itemBuilder: (context, index) {
+                      final request = allRequests[index];
+                      return GestureDetector(
+                        onTap: () {
+                          print('Database Management Tapped');
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.white,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: Colors.blueAccent,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Icon(
+                                        Icons.data_array,
+                                        size: 25,
+                                        color: Colors.blueAccent,
+                                      ),
+                                    ),
+                                    Text(
+                                      request['title'],
+                                      style: TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    IconButton(
+                                      onPressed:
+                                          () =>
+                                              toggleBookmark(request['title']),
+                                      icon: Icon(
+                                        bookmarkedCourses[request['title']] ==
+                                                true
+                                            ? Icons.bookmark
+                                            : Icons.bookmark_border_outlined,
+                                        size: 25,
+                                        color:
+                                            bookmarkedCourses[request['title']] ==
+                                                    true
+                                                ? Colors.green
+                                                : Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 20),
+                                Text(
+                                  request['description'],
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                                SizedBox(height: 20),
+                                LinearProgressIndicator(
+                                  value: 0.7,
+                                  color: Colors.amber,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
             ],
           ),
         ),
