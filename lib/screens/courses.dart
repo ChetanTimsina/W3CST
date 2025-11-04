@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+// Importing screens for navigation
+import 'courseScreens/cprogramming.dart';
+
 class courseScreen extends StatefulWidget {
   const courseScreen({super.key});
 
@@ -24,6 +27,16 @@ class _courseScreenState extends State<courseScreen> {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     CollectionReference requestsRef = firestore.collection('ApprovedCourses');
 
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("User not logged in")));
+      return;
+    }
+
+    final currentuserId = user.uid;
+
     QuerySnapshot querySnapshot = await requestsRef.get();
 
     List<Map<String, dynamic>> tempList = [];
@@ -35,6 +48,7 @@ class _courseScreenState extends State<courseScreen> {
 
       for (var course in courses) {
         tempList.add({
+          'currentuserId': currentuserId,
           'userId': userId,
           'title': course['title'],
           'description': course['description'],
@@ -150,7 +164,12 @@ class _courseScreenState extends State<courseScreen> {
             children: [
               GestureDetector(
                 onTap: () {
-                  print('C Programming Tapped');
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const cprogrammingScreen(),
+                    ),
+                  );
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -420,7 +439,7 @@ class _courseScreenState extends State<courseScreen> {
                       final request = allRequests[index];
                       return GestureDetector(
                         onTap: () {
-                          print('Database Management Tapped');
+                          print('${request['title']} course Tapped');
                         },
                         child: Container(
                           decoration: BoxDecoration(
@@ -456,22 +475,34 @@ class _courseScreenState extends State<courseScreen> {
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    IconButton(
-                                      onPressed:
-                                          () =>
-                                              toggleBookmark(request['title']),
-                                      icon: Icon(
-                                        bookmarkedCourses[request['title']] ==
-                                                true
-                                            ? Icons.bookmark
-                                            : Icons.bookmark_border_outlined,
-                                        size: 25,
-                                        color:
+                                    Row(
+                                      children: [
+                                        if (request['currentuserId'] ==
+                                            request['userId'])
+                                          IconButton(
+                                            onPressed: () {},
+                                            icon: Icon(Icons.edit_outlined),
+                                          ),
+                                        IconButton(
+                                          onPressed:
+                                              () => toggleBookmark(
+                                                request['title'],
+                                              ),
+                                          icon: Icon(
                                             bookmarkedCourses[request['title']] ==
                                                     true
-                                                ? Colors.green
-                                                : Colors.grey,
-                                      ),
+                                                ? Icons.bookmark
+                                                : Icons
+                                                    .bookmark_border_outlined,
+                                            size: 25,
+                                            color:
+                                                bookmarkedCourses[request['title']] ==
+                                                        true
+                                                    ? Colors.green
+                                                    : Colors.grey,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
