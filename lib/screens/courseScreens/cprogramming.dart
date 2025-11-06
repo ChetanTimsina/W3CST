@@ -3,7 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class cprogrammingScreen extends StatefulWidget {
-  const cprogrammingScreen({super.key});
+  final String courseName;
+  const cprogrammingScreen({super.key, required this.courseName});
 
   @override
   State<cprogrammingScreen> createState() => _cprogrammingScreenState();
@@ -26,7 +27,6 @@ class _cprogrammingScreenState extends State<cprogrammingScreen> {
     final docSnapshot = await userDoc.get();
 
     if (!docSnapshot.exists) {
-      // unlikely, user doc should exist, but just in case
       await userDoc.set({'coursesProgress': []});
     } else {
       final data = docSnapshot.data() as Map<String, dynamic>;
@@ -74,9 +74,7 @@ class _cprogrammingScreenState extends State<cprogrammingScreen> {
               final i = entry.key;
               final content = entry.value;
               final finished =
-                  i < finishedList.length
-                      ? finishedList[i]
-                      : false; // default false
+                  i < finishedList.length ? finishedList[i] : false;
               return {'content': content, 'finished': finished};
             }).toList();
 
@@ -111,9 +109,7 @@ class _cprogrammingScreenState extends State<cprogrammingScreen> {
               final i = entry.key;
               final content = entry.value;
               final finished =
-                  i < finishedList.length
-                      ? finishedList[i]
-                      : false; // default false
+                  i < finishedList.length ? finishedList[i] : false;
               return {'content': content, 'finished': finished};
             }).toList();
 
@@ -154,7 +150,7 @@ class _cprogrammingScreenState extends State<cprogrammingScreen> {
                         .toString()
                         .toLowerCase()
                         .trim()
-                        .contains('c programming')) {
+                        .contains(widget.courseName.toLowerCase().trim())) {
                       return SingleChildScrollView(
                         child: Card(
                           margin: const EdgeInsets.all(10),
@@ -188,17 +184,6 @@ class _cprogrammingScreenState extends State<cprogrammingScreen> {
                                         bottom: 10.0,
                                       ),
                                       child: Container(
-                                        decoration: BoxDecoration(
-                                          color: const Color.fromARGB(
-                                            255,
-                                            255,
-                                            255,
-                                            255,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            5,
-                                          ),
-                                        ),
                                         child: Container(
                                           decoration: BoxDecoration(
                                             border: Border.all(
@@ -209,13 +194,10 @@ class _cprogrammingScreenState extends State<cprogrammingScreen> {
                                                 91,
                                               ),
                                             ),
-                                            borderRadius: BorderRadius.circular(
-                                              5,
-                                            ),
                                           ),
                                           child: Row(
                                             crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                                CrossAxisAlignment.center,
                                             children: [
                                               Expanded(
                                                 child: Padding(
@@ -279,7 +261,6 @@ class _cprogrammingScreenState extends State<cprogrammingScreen> {
                                                           [],
                                                     );
 
-                                                    // Make sure list is long enough
                                                     while (finishedList
                                                             .length <=
                                                         contentIndex) {

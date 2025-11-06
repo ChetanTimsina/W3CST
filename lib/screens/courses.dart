@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 // Importing screens for navigation
 import 'courseScreens/cprogramming.dart';
+import 'courseScreens/java.dart';
+import 'courseScreens/webdevelopment.dart';
 
 class courseScreen extends StatefulWidget {
   const courseScreen({super.key});
@@ -167,7 +169,10 @@ class _courseScreenState extends State<courseScreen> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const cprogrammingScreen(),
+                      builder:
+                          (context) => const cprogrammingScreen(
+                            courseName: 'C Programming',
+                          ),
                     ),
                   );
                 },
@@ -234,7 +239,13 @@ class _courseScreenState extends State<courseScreen> {
               SizedBox(height: 10),
               GestureDetector(
                 onTap: () {
-                  print('Java Basics Tapped');
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => const javaScreen(courseName: 'java'),
+                    ),
+                  );
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -299,7 +310,15 @@ class _courseScreenState extends State<courseScreen> {
               SizedBox(height: 10),
               GestureDetector(
                 onTap: () {
-                  print('Web Development Tapped');
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => const webdevelopmentScreen(
+                            courseName: 'Web Development',
+                          ),
+                    ),
+                  );
                 },
                 child: Container(
                   decoration: BoxDecoration(
