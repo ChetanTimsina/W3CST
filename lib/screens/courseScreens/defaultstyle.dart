@@ -202,6 +202,7 @@ class _CourseContentPagerState extends State<CourseContentPager> {
       appBar: AppBar(
         title: Text(widget.course['title'] ?? 'Course'),
         backgroundColor: const Color.fromARGB(255, 3, 62, 91),
+        foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
         child: Padding(

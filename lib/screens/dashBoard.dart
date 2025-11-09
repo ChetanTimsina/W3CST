@@ -1,15 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-//importing Screens for navigation
 import 'courses.dart';
 import 'bookmarks.dart';
 import 'quiz.dart';
 import 'about.dart';
 import 'Login_screen.dart';
 import 'adminApproval.dart';
-// Importing screens for navigation
 import 'courseScreens/cprogramming.dart';
 import 'courseScreens/java.dart';
 import 'courseScreens/htmlcss.dart';
@@ -24,38 +25,85 @@ class dashBoardScreen extends StatefulWidget {
 }
 
 class _dashBoardScreenState extends State<dashBoardScreen> {
-  final List<Map<String, dynamic>> slides = [
-    {
-      'image': 'assets/images/cprogramming.png',
-      'title': 'C Programming',
-      'desc': 'Master widgets, animations, and backend connections!',
-      'screen': 'CProgrammingScreen',
-    },
-    {
-      'image': 'assets/images/java.png',
-      'title': 'Java Basics',
-      'desc': 'From portfolios to IoT dashboards — make ideas real.',
-      'screen': 'javaScreen',
-    },
-    {
-      'image': 'assets/images/htmlcss.png',
-      'title': 'Html & Css',
-      'desc': 'Code smart, build fast, and ship proudly',
-      'screen': 'htmlcssScreen',
-    },
-    {
-      'image': 'assets/images/web.png',
-      'title': 'Web Development',
-      'desc': 'Code smart, build fast, and ship proudly',
-      'screen': 'webdevelopmentScreen',
-    },
-    {
-      'image': 'assets/images/database.png',
-      'title': 'Database Management',
-      'desc': 'Code smart, build fast, and ship proudly',
-      'screen': 'databaseScreen',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    loadProgessforall();
+    Timer.periodic(const Duration(seconds: 3), (t) {
+      if (mounted) loadProgessforall();
+    });
+  }
+
+  Map<String, dynamic> progressDatacprogramming = {
+    'completed': 0,
+    'total': 0,
+    'percentage': 0.0,
+  };
+  Map<String, dynamic> progressDatajava = {
+    'completed': 0,
+    'total': 0,
+    'percentage': 0.0,
+  };
+  Map<String, dynamic> progressDatahtmlcss = {
+    'completed': 0,
+    'total': 0,
+    'percentage': 0.0,
+  };
+  Map<String, dynamic> progressDatadatabase = {
+    'completed': 0,
+    'total': 0,
+    'percentage': 0.0,
+  };
+  Map<String, dynamic> progressDataweb = {
+    'completed': 0,
+    'total': 0,
+    'percentage': 0.0,
+  };
+
+  Future<void> loadProgessforall() async {
+    progressDatacprogramming = await loadProgress("C Programming");
+    progressDatajava = await loadProgress("Java");
+    progressDatahtmlcss = await loadProgress("Html&css");
+    progressDatadatabase = await loadProgress("Database Management");
+    progressDataweb = await loadProgress("Web Development");
+    setState(() {});
+  }
+
+  Future<Map<String, dynamic>> loadProgress(String courseName) async {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final userDoc = FirebaseFirestore.instance.collection('users').doc(userId);
+    final docSnapshot = await userDoc.get();
+
+    if (!docSnapshot.exists) {
+      return {'completed': 0, 'total': 0, 'percentage': 0.0};
+    }
+
+    final coursesProgress = List<Map<String, dynamic>>.from(
+      docSnapshot.data()?['coursesProgress'] ?? [],
+    );
+
+    final courseIndex = coursesProgress.indexWhere(
+      (p) => p['title']?.toString().toLowerCase() == courseName.toLowerCase(),
+    );
+
+    int completed = 0;
+    int total = 0;
+    double percentage = 0.0;
+
+    if (courseIndex != -1) {
+      final courseData = coursesProgress[courseIndex];
+      final finishedList = List<bool>.from(courseData['contentfinished'] ?? []);
+      completed = finishedList.where((e) => e).length;
+      total = finishedList.length;
+      if (total > 0) {
+        percentage = (completed / total) * 100;
+      } else {
+        percentage = 0.0;
+      }
+    }
+
+    return {'completed': completed, 'total': total, 'percentage': percentage};
+  }
 
   Widget _getScreen(String screenName) {
     switch (screenName) {
@@ -64,7 +112,7 @@ class _dashBoardScreenState extends State<dashBoardScreen> {
       case 'javaScreen':
         return const javaScreen(courseName: 'Java');
       case 'htmlcssScreen':
-        return const htmlcssScreen(courseName: 'HTML&CSS');
+        return const htmlcssScreen(courseName: 'Html&css');
       case 'webdevelopmentScreen':
         return const webdevelopmentScreen(courseName: 'Web Development');
       case 'databaseScreen':
@@ -75,7 +123,74 @@ class _dashBoardScreenState extends State<dashBoardScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    loadProgessforall();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final List<Map<String, dynamic>> slides = [
+      {
+        'image': 'assets/images/cprogramming.png',
+        'title': 'C Programming',
+        'desc': 'Master widgets, animations, and backend connections!',
+        'screen': 'CProgrammingScreen',
+        'completed': progressDatacprogramming['completed'],
+        'total': progressDatacprogramming['total'],
+        'progress': ((progressDatacprogramming['percentage'] ?? 0.0) / 100)
+            .clamp(0.0, 1.0),
+      },
+      {
+        'image': 'assets/images/java.png',
+        'title': 'Java Basics',
+        'desc': 'From portfolios to IoT dashboards — make ideas real.',
+        'screen': 'javaScreen',
+        'completed': progressDatajava['completed'],
+        'total': progressDatajava['total'],
+        'progress': ((progressDatajava['percentage'] ?? 0.0) / 100).clamp(
+          0.0,
+          1.0,
+        ),
+      },
+      {
+        'image': 'assets/images/htmlcss.png',
+        'title': 'Html & Css',
+        'desc': 'Code smart, build fast, and ship proudly',
+        'screen': 'htmlcssScreen',
+        'completed': progressDatahtmlcss['completed'],
+        'total': progressDatahtmlcss['total'],
+        'progress': ((progressDatahtmlcss['percentage'] ?? 0.0) / 100).clamp(
+          0.0,
+          1.0,
+        ),
+      },
+      {
+        'image': 'assets/images/web.png',
+        'title': 'Web Development',
+        'desc': 'Code smart, build fast, and ship proudly',
+        'screen': 'webdevelopmentScreen',
+        'completed': progressDataweb['completed'],
+        'total': progressDataweb['total'],
+        'progress': ((progressDataweb['percentage'] ?? 0.0) / 100).clamp(
+          0.0,
+          1.0,
+        ),
+      },
+      {
+        'image': 'assets/images/database.png',
+        'title': 'Database Management',
+        'desc': 'Code smart, build fast, and ship proudly',
+        'screen': 'databaseScreen',
+        'completed': progressDatadatabase['completed'],
+        'total': progressDatadatabase['total'],
+        'progress': ((progressDatadatabase['percentage'] ?? 0.0) / 100).clamp(
+          0.0,
+          1.0,
+        ),
+      },
+    ];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
@@ -217,6 +332,18 @@ class _dashBoardScreenState extends State<dashBoardScreen> {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   const SizedBox(height: 8),
+
+                                  LinearProgressIndicator(
+                                    value: (slide['progress'] as double).clamp(
+                                      0.0,
+                                      1.0,
+                                    ),
+                                    color: Colors.amber,
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    '${slide['completed']}/${slide['total']}',
+                                  ),
                                   ElevatedButton(
                                     onPressed: () {
                                       Navigator.push(
@@ -302,7 +429,6 @@ class _dashBoardScreenState extends State<dashBoardScreen> {
                                 ),
                               ],
                             ),
-
                             const Text(
                               'Explore all learning paths',
                               textAlign: TextAlign.start,
@@ -310,8 +436,8 @@ class _dashBoardScreenState extends State<dashBoardScreen> {
                             ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
+                              children: const [
+                                Text(
                                   'Go to Courses',
                                   style: TextStyle(
                                     color: Colors.blue,
@@ -368,7 +494,6 @@ class _dashBoardScreenState extends State<dashBoardScreen> {
                                 ),
                               ],
                             ),
-
                             const Text(
                               'Your saved Lessons',
                               textAlign: TextAlign.start,
@@ -377,8 +502,8 @@ class _dashBoardScreenState extends State<dashBoardScreen> {
                             const SizedBox(height: 12),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
+                              children: const [
+                                Text(
                                   'Go to Bookmarks',
                                   style: TextStyle(fontSize: 12),
                                 ),
@@ -389,212 +514,219 @@ class _dashBoardScreenState extends State<dashBoardScreen> {
                       ),
                     ),
                   ),
-                  Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    elevation: 3,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Image.asset(
-                                'assets/images/Icons/quiz.png',
-                                width: 30,
-                                height: 30,
-                                color: Colors.blue,
-                              ),
-                              const Text(
-                                'Quizzes',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const QuizScreen(),
+                        ),
+                      );
+                    },
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      elevation: 3,
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Image.asset(
+                                  'assets/images/Icons/quiz.png',
+                                  width: 30,
+                                  height: 30,
+                                  color: Colors.blue,
                                 ),
-                                textAlign: TextAlign.start,
-                              ),
-                              Image.asset(
-                                'assets/images/Icons/rightarrow.png',
-                                width: 24,
-                                height: 24,
-                                color: Colors.blue,
-                              ),
-                            ],
-                          ),
-
-                          const Text(
-                            'Test Your Knowledge',
-                            textAlign: TextAlign.start,
-                            style: TextStyle(fontSize: 13),
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              TextButton(
-                                onPressed:
-                                    () => {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) => const quizScreen(),
-                                        ),
-                                      ),
-                                    },
-                                child: const Text(
+                                const Text(
+                                  'Quizzes',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                  textAlign: TextAlign.start,
+                                ),
+                                Image.asset(
+                                  'assets/images/Icons/rightarrow.png',
+                                  width: 24,
+                                  height: 24,
+                                  color: Colors.blue,
+                                ),
+                              ],
+                            ),
+                            const Text(
+                              'Test Your Knowledge',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(fontSize: 13),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
                                   'Go to Quizzes',
                                   style: TextStyle(fontSize: 12),
                                 ),
-                              ),
-                              Image.asset(
-                                'assets/images/Icons/rightarrow.png',
-                                width: 16,
-                                height: 16,
-                                color: Colors.blue,
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                  Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    elevation: 3,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Image.asset(
-                                'assets/images/Icons/about.png',
-                                width: 30,
-                                height: 30,
-                                color: Colors.blue,
-                              ),
-                              const Text(
-                                'About',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AboutScreen(),
+                        ),
+                      );
+                    },
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      elevation: 3,
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Image.asset(
+                                  'assets/images/Icons/about.png',
+                                  width: 30,
+                                  height: 30,
+                                  color: Colors.blue,
                                 ),
-                              ),
-                              Image.asset(
-                                'assets/images/Icons/rightarrow.png',
-                                width: 24,
-                                height: 24,
-                                color: Colors.blue,
-                              ),
-                            ],
-                          ),
-
-                          const Text(
-                            'Learn more about W3CST',
-                            textAlign: TextAlign.start,
-                            style: TextStyle(fontSize: 13),
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const aboutScreen(),
-                                    ),
-                                  );
-                                },
-                                child: const Text(
+                                const Text(
+                                  'About',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Image.asset(
+                                  'assets/images/Icons/rightarrow.png',
+                                  width: 24,
+                                  height: 24,
+                                  color: Colors.blue,
+                                ),
+                              ],
+                            ),
+                            const Text(
+                              'Learn more about W3CST',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(fontSize: 13),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
                                   'Go to About',
                                   style: TextStyle(fontSize: 12),
                                 ),
-                              ),
-                              Image.asset(
-                                'assets/images/Icons/rightarrow.png',
-                                width: 16,
-                                height: 16,
-                                color: Colors.blue,
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 20),
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                elevation: 3,
-                margin: const EdgeInsets.symmetric(
-                  vertical: 12,
-                  horizontal: 16,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(30.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+              FutureBuilder<DocumentSnapshot>(
+                future:
+                    FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(FirebaseAuth.instance.currentUser?.uid)
+                        .get(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const SizedBox(); // or a loader if you want
+                  }
+
+                  if (!snapshot.hasData || !snapshot.data!.exists) {
+                    return const SizedBox();
+                  }
+
+                  final userData =
+                      snapshot.data!.data() as Map<String, dynamic>;
+                  final isAdmin =
+                      (userData['name'] ?? '').toString().toLowerCase() ==
+                      'admin';
+
+                  if (!isAdmin)
+                    return const SizedBox(); // hide widget if not admin
+
+                  return Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    elevation: 3,
+                    margin: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 16,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(30.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Image.asset(
-                            'assets/images/Icons/Campaign.png',
-                            width: 40,
-                            height: 40,
+                          const Text(
+                            'Admin can approve new courses',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                          const SizedBox(width: 12),
-                          const Expanded(
-                            child: Text(
-                              'New Updates Available!',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                          const SizedBox(height: 10),
+                          const Text(
+                            'Admin approval and contribute new learning content!',
+                          ),
+                          const SizedBox(height: 15),
+                          Center(
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) =>
+                                            const adminApprovalScreen(),
+                                  ),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color.fromARGB(
+                                  255,
+                                  3,
+                                  62,
+                                  91,
+                                ),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 12,
+                                ),
                               ),
+                              child: const Text('Admin Approval - Only Admin'),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'W3CST v2.0 brings interactive code editors and new courses in AI/ML. Check it out now!',
-                      ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Read More...',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const adminApprovalScreen(),
                     ),
                   );
                 },
-                child: const Text('Admin Approval page demo'),
               ),
             ],
           ),

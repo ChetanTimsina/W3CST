@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -147,44 +148,53 @@ class _CourseContentPagerState extends State<CourseContentPager> {
   void initState() {
     super.initState();
     contentList = widget.course['content'] ?? [];
-    loadLocalProgress();
   }
 
-  Future<void> loadLocalProgress() async {
-    final prefs = await SharedPreferences.getInstance();
-    String key = 'progress_${widget.course['title']}';
-    List<String>? savedFlags = prefs.getStringList(key);
-    if (savedFlags != null) {
-      for (int i = 0; i < savedFlags.length && i < contentList.length; i++) {
-        contentList[i]['finished'] = savedFlags[i] == 'true';
-      }
-      setState(() {});
-    }
-  }
-
-  Future<void> saveProgress(int index) async {
-    final prefs = await SharedPreferences.getInstance();
-    String key = 'progress_${widget.course['title']}';
-    List<String> finishedFlags =
-        contentList
-            .map((item) => (item['finished'] == true).toString())
-            .toList();
-    await prefs.setStringList(key, finishedFlags);
-
+  Future<void> saveProgress() async {
     final userId = FirebaseAuth.instance.currentUser!.uid;
     final userDoc = FirebaseFirestore.instance.collection('users').doc(userId);
     final docSnapshot = await userDoc.get();
+
     final coursesProgress = List<Map<String, dynamic>>.from(
-      docSnapshot['coursesProgress'] ?? [],
+      docSnapshot.data()?['coursesProgress'] ?? [],
     );
+
     final courseIndex = coursesProgress.indexWhere(
       (p) => p['title'] == widget.course['title'],
     );
+
+    List<bool> finishedList =
+        contentList.map((item) => item['finished'] == true).toList();
+
+    int progressCount = finishedList.where((done) => done).length;
+
+    double percent = 0;
+    if (finishedList.isNotEmpty) {
+      percent = (progressCount / finishedList.length) * 100;
+    }
+
     if (courseIndex != -1) {
-      final finishedList = List<bool>.from(
-        coursesProgress[courseIndex]['progress'] ?? [],
-      );
-      
+      coursesProgress[courseIndex] = {
+        'title': widget.course['title'],
+        'contentfinished': finishedList,
+        'progress': {
+          'completed': progressCount,
+          'total': finishedList.length,
+          'percentage': percent.toStringAsFixed(1),
+        },
+      };
+    } else {
+      coursesProgress.add({
+        'title': widget.course['title'],
+        'contentfinished': finishedList,
+        'progress': {
+          'completed': progressCount,
+          'total': finishedList.length,
+          'percentage': percent.toStringAsFixed(1),
+        },
+      });
+    }
+    await userDoc.update({'coursesProgress': coursesProgress});
   }
 
   Future<void> toggleFinished(int index) async {
@@ -237,6 +247,7 @@ class _CourseContentPagerState extends State<CourseContentPager> {
       appBar: AppBar(
         title: Text(widget.course['title'] ?? 'Course'),
         backgroundColor: const Color.fromARGB(255, 3, 62, 91),
+        foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
         child: Padding(

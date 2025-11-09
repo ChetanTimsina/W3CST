@@ -27,6 +27,55 @@ class _courseScreenState extends State<courseScreen> {
     loadBookmarks();
   }
 
+  Future<Map<String, dynamic>> loadProgress(String courseName) async {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final userDoc = FirebaseFirestore.instance.collection('users').doc(userId);
+    final docSnapshot = await userDoc.get();
+
+    final coursesProgress = List<Map<String, dynamic>>.from(
+      docSnapshot.data()?['coursesProgress'] ?? [],
+    );
+
+    final courseIndex = coursesProgress.indexWhere(
+      (p) => p['title'].toLowerCase() == courseName.toLowerCase(),
+    );
+
+    int completed = 0;
+    int total = 0;
+    double percentage = 0.0;
+
+    if (courseIndex != -1) {
+      final courseData = coursesProgress[courseIndex];
+
+      // Load finished list if available
+      final finishedList = List<bool>.from(courseData['contentfinished'] ?? []);
+
+      // Try reading saved progress (if stored)
+      final progressData = Map<String, dynamic>.from(
+        courseData['progress'] ?? {},
+      );
+
+      completed =
+          progressData['completed'] ?? finishedList.where((e) => e).length;
+      total = progressData['total'] ?? finishedList.length;
+
+      if (total > 0) {
+        percentage = (completed / total) * 100;
+      } else {
+        percentage =
+            double.tryParse(progressData['percentage']?.toString() ?? '0') ?? 0;
+      }
+
+      debugPrint(
+        "Loaded progress for $courseName: $completed/$total ($percentage%)",
+      );
+    } else {
+      debugPrint("No saved progress found for $courseName");
+    }
+
+    return {'completed': completed, 'total': total, 'percentage': percentage};
+  }
+
   final TextEditingController coursetitleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
 

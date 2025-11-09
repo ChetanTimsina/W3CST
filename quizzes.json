@@ -1,0 +1,307 @@
+{
+  "cprogramming": {
+    "title": "C Programming",
+    "description": "Learn the basics of C programming, syntax, data types, and control structures.",
+    "questions": [
+      {
+        "question": "Who developed the C programming language?",
+        "options": [
+          "Dennis Ritchie",
+          "Bjarne Stroustrup",
+          "James Gosling",
+          "Guido van Rossum"
+        ],
+        "correctAnswer": "Dennis Ritchie"
+      },
+      {
+        "question": "Which of the following is a valid data type in C?",
+        "options": ["integer", "number", "string", "chararray"],
+        "correctAnswer": "integer"
+      },
+      {
+        "question": "What is the correct way to declare a pointer in C?",
+        "options": ["int *ptr;", "int ptr*;", "pointer int ptr;", "int &ptr;"],
+        "correctAnswer": "int *ptr;"
+      },
+      {
+        "question": "Which operator is used to access the value at the address stored by a pointer?",
+        "options": ["*", "&", "%", "->"],
+        "correctAnswer": "*"
+      },
+      {
+        "question": "What is the output of printf(\"%d\", 5/2) in C?",
+        "options": ["2", "2.5", "3", "Error"],
+        "correctAnswer": "2"
+      },
+      {
+        "question": "Which keyword is used to define a constant in C?",
+        "options": ["const", "final", "static", "constant"],
+        "correctAnswer": "const"
+      },
+      {
+        "question": "Which function is used to read a string from the user?",
+        "options": ["scanf", "gets", "read", "input"],
+        "correctAnswer": "gets"
+      },
+      {
+        "question": "What is the correct syntax for an if statement in C?",
+        "options": [
+          "if(condition) { }",
+          "if condition { }",
+          "if: condition { }",
+          "if[condition] { }"
+        ],
+        "correctAnswer": "if(condition) { }"
+      },
+      {
+        "question": "Which loop is guaranteed to execute at least once?",
+        "options": ["do-while", "for", "while", "foreach"],
+        "correctAnswer": "do-while"
+      },
+      {
+        "question": "Which header file is required for printf and scanf?",
+        "options": ["stdio.h", "conio.h", "stdlib.h", "string.h"],
+        "correctAnswer": "stdio.h"
+      }
+    ]
+  },
+  "java": {
+    "title": "Java Programming",
+    "description": "Introduction to Java, OOP concepts, and basic syntax.",
+    "questions": [
+      {
+        "question": "Which of these is not a Java primitive type?",
+        "options": ["int", "double", "String", "char"],
+        "correctAnswer": "String"
+      },
+      {
+        "question": "What is the keyword used to inherit a class in Java?",
+        "options": ["extends", "implements", "inherits", "super"],
+        "correctAnswer": "extends"
+      },
+      {
+        "question": "Which method is the entry point of a Java program?",
+        "options": ["main", "start", "run", "init"],
+        "correctAnswer": "main"
+      },
+      {
+        "question": "Which of these is used to handle exceptions in Java?",
+        "options": [
+          "try-catch",
+          "throw-catch",
+          "catch-try",
+          "handle-exception"
+        ],
+        "correctAnswer": "try-catch"
+      },
+      {
+        "question": "Which keyword is used to prevent method overriding?",
+        "options": ["final", "static", "private", "abstract"],
+        "correctAnswer": "final"
+      },
+      {
+        "question": "Which access modifier makes a member accessible only within its class?",
+        "options": ["private", "public", "protected", "default"],
+        "correctAnswer": "private"
+      },
+      {
+        "question": "Which collection class stores elements in key-value pairs?",
+        "options": ["HashMap", "ArrayList", "LinkedList", "HashSet"],
+        "correctAnswer": "HashMap"
+      },
+      {
+        "question": "Which keyword is used to implement an interface?",
+        "options": ["implements", "extends", "inherits", "interface"],
+        "correctAnswer": "implements"
+      },
+      {
+        "question": "What is the default value of a boolean variable in Java?",
+        "options": ["false", "true", "0", "null"],
+        "correctAnswer": "false"
+      },
+      {
+        "question": "Which operator is used to compare two values for equality?",
+        "options": ["==", "=", "equals", "==="],
+        "correctAnswer": "=="
+      }
+    ]
+  },
+  "webdevelopment": {
+    "title": "Web Development",
+    "description": "Basics of HTML, CSS, JavaScript, and building websites.",
+    "questions": [
+      {
+        "question": "Which tag is used to create a hyperlink in HTML?",
+        "options": ["<a>", "<link>", "<href>", "<url>"],
+        "correctAnswer": "<a>"
+      },
+      {
+        "question": "Which property changes the background color in CSS?",
+        "options": ["background-color", "color", "bgcolor", "backgroundImage"],
+        "correctAnswer": "background-color"
+      },
+      {
+        "question": "Which of these is a JavaScript data type?",
+        "options": ["Number", "Character", "Integer", "Float"],
+        "correctAnswer": "Number"
+      },
+      {
+        "question": "Which method is used to select an element by ID in JavaScript?",
+        "options": [
+          "getElementById",
+          "querySelectorAll",
+          "getElementsByClassName",
+          "findElement"
+        ],
+        "correctAnswer": "getElementById"
+      },
+      {
+        "question": "Which tag is used for a line break in HTML?",
+        "options": ["<br>", "<lb>", "<break>", "<line>"],
+        "correctAnswer": "<br>"
+      },
+      {
+        "question": "Which CSS property controls the text size?",
+        "options": ["font-size", "text-size", "size", "font-style"],
+        "correctAnswer": "font-size"
+      },
+      {
+        "question": "What does CSS stand for?",
+        "options": [
+          "Cascading Style Sheets",
+          "Creative Style Sheets",
+          "Computer Style Syntax",
+          "Colorful Style Sheets"
+        ],
+        "correctAnswer": "Cascading Style Sheets"
+      },
+      {
+        "question": "Which symbol is used for ID selectors in CSS?",
+        "options": ["#", ".", "@", "*"],
+        "correctAnswer": "#"
+      },
+      {
+        "question": "Which HTML tag is used to define an unordered list?",
+        "options": ["<ul>", "<ol>", "<li>", "<list>"],
+        "correctAnswer": "<ul>"
+      },
+      {
+        "question": "Which event occurs when a user clicks on an HTML element?",
+        "options": ["onclick", "onhover", "onchange", "onselect"],
+        "correctAnswer": "onclick"
+      }
+    ]
+  },
+  "database": {
+    "title": "Database",
+    "description": "Basics of relational databases, SQL, and data storage concepts.",
+    "questions": [
+      {
+        "question": "Which SQL command is used to retrieve data from a database?",
+        "options": ["SELECT", "INSERT", "UPDATE", "DELETE"],
+        "correctAnswer": "SELECT"
+      },
+      {
+        "question": "Which SQL command is used to remove data from a table?",
+        "options": ["DELETE", "DROP", "REMOVE", "CLEAR"],
+        "correctAnswer": "DELETE"
+      },
+      {
+        "question": "Which SQL clause is used to filter results?",
+        "options": ["WHERE", "HAVING", "ORDER BY", "GROUP BY"],
+        "correctAnswer": "WHERE"
+      },
+      {
+        "question": "Which of these is a relational database management system?",
+        "options": ["MySQL", "MongoDB", "Firebase", "Cassandra"],
+        "correctAnswer": "MySQL"
+      },
+      {
+        "question": "Which SQL keyword is used to sort the results?",
+        "options": ["ORDER BY", "SORT", "GROUP BY", "FILTER"],
+        "correctAnswer": "ORDER BY"
+      },
+      {
+        "question": "Which type of join returns all records when there is a match in either table?",
+        "options": ["FULL OUTER JOIN", "INNER JOIN", "LEFT JOIN", "RIGHT JOIN"],
+        "correctAnswer": "FULL OUTER JOIN"
+      },
+      {
+        "question": "Which SQL command is used to add a new row to a table?",
+        "options": ["INSERT INTO", "ADD ROW", "CREATE ROW", "UPDATE"],
+        "correctAnswer": "INSERT INTO"
+      },
+      {
+        "question": "Which constraint ensures unique values in a column?",
+        "options": ["UNIQUE", "PRIMARY KEY", "FOREIGN KEY", "CHECK"],
+        "correctAnswer": "UNIQUE"
+      },
+      {
+        "question": "Which key uniquely identifies a record in a table?",
+        "options": ["PRIMARY KEY", "FOREIGN KEY", "UNIQUE KEY", "INDEX KEY"],
+        "correctAnswer": "PRIMARY KEY"
+      },
+      {
+        "question": "Which SQL statement is used to modify existing data?",
+        "options": ["UPDATE", "MODIFY", "CHANGE", "SET"],
+        "correctAnswer": "UPDATE"
+      }
+    ]
+  },
+  "htmlandcss": {
+    "title": "HTML & CSS",
+    "description": "Learn how to structure web pages with HTML and style them with CSS.",
+    "questions": [
+      {
+        "question": "Which HTML tag defines a paragraph?",
+        "options": ["<p>", "<div>", "<span>", "<para>"],
+        "correctAnswer": "<p>"
+      },
+      {
+        "question": "Which HTML attribute specifies an image source?",
+        "options": ["src", "href", "link", "image"],
+        "correctAnswer": "src"
+      },
+      {
+        "question": "Which CSS property changes text color?",
+        "options": ["color", "text-color", "font-color", "text-style"],
+        "correctAnswer": "color"
+      },
+      {
+        "question": "Which CSS property controls the element’s margin?",
+        "options": ["margin", "padding", "border", "spacing"],
+        "correctAnswer": "margin"
+      },
+      {
+        "question": "Which HTML tag defines a table row?",
+        "options": ["<tr>", "<td>", "<table>", "<th>"],
+        "correctAnswer": "<tr>"
+      },
+      {
+        "question": "Which HTML tag is used to create a table cell?",
+        "options": ["<td>", "<tr>", "<th>", "<table>"],
+        "correctAnswer": "<td>"
+      },
+      {
+        "question": "Which CSS property is used for spacing inside an element?",
+        "options": ["padding", "margin", "border-spacing", "gap"],
+        "correctAnswer": "padding"
+      },
+      {
+        "question": "Which tag is used to include a CSS file?",
+        "options": ["<link>", "<style>", "<css>", "<script>"],
+        "correctAnswer": "<link>"
+      },
+      {
+        "question": "Which CSS selector selects all elements of a class?",
+        "options": [".classname", "#classname", "*", "classname"],
+        "correctAnswer": ".classname"
+      },
+      {
+        "question": "Which tag is used for the largest heading in HTML?",
+        "options": ["<h1>", "<h6>", "<head>", "<header>"],
+        "correctAnswer": "<h1>"
+      }
+    ]
+  }
+}
