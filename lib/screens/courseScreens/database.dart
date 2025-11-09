@@ -13,15 +13,15 @@ Color getRandomColor() {
   );
 }
 
-class javaScreen extends StatefulWidget {
+class databaseScreen extends StatefulWidget {
   final String courseName;
-  const javaScreen({super.key, required this.courseName});
+  const databaseScreen({super.key, required this.courseName});
 
   @override
-  State<javaScreen> createState() => _javaScreenState();
+  State<databaseScreen> createState() => _databaseScreenState();
 }
 
-class _javaScreenState extends State<javaScreen> {
+class _databaseScreenState extends State<databaseScreen> {
   List<Map<String, dynamic>> allCourses = [];
   bool loading = true;
 
@@ -119,7 +119,7 @@ class _javaScreenState extends State<javaScreen> {
     if (filteredCourses.isEmpty) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('Java Basics'),
+          title: Text('Database Management'),
           backgroundColor: const Color.fromARGB(255, 3, 62, 91),
           foregroundColor: Colors.white,
         ),

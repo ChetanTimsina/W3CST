@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Importing screens for navigation
 import 'courseScreens/cprogramming.dart';
 import 'courseScreens/java.dart';
+import 'courseScreens/htmlcss.dart';
+import 'package:w3cst/screens/courseScreens/database.dart';
 import 'courseScreens/webdevelopment.dart';
+import 'courseScreens/Restofthecourses.dart';
 
 class courseScreen extends StatefulWidget {
   const courseScreen({super.key});
@@ -20,6 +24,7 @@ class _courseScreenState extends State<courseScreen> {
   void initState() {
     super.initState();
     loadRequest();
+    loadBookmarks();
   }
 
   final TextEditingController coursetitleController = TextEditingController();
@@ -113,6 +118,20 @@ class _courseScreenState extends State<courseScreen> {
     }
   }
 
+  Map<String, bool> bookmarkedCourses = {};
+
+  Future<void> loadBookmarks() async {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final docRef = FirebaseFirestore.instance.collection("users").doc(userId);
+
+    final snapshot = await docRef.get();
+    final bookmarks = List<String>.from(snapshot.data()?['bookmarks'] ?? []);
+
+    for (var bookmark in bookmarks) {
+      bookmarkedCourses[bookmark] = true;
+    }
+  }
+
   Future<void> toggleBookmark(String courseName) async {
     final userId = FirebaseAuth.instance.currentUser!.uid;
     final docRef = FirebaseFirestore.instance.collection('users').doc(userId);
@@ -143,13 +162,6 @@ class _courseScreenState extends State<courseScreen> {
     });
   }
 
-  Map<String, bool> bookmarkedCourses = {
-    'C Programming': false,
-    'Java Basics': false,
-    'Web Development': false,
-    'Database Management': false,
-  };
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -170,7 +182,7 @@ class _courseScreenState extends State<courseScreen> {
                     context,
                     MaterialPageRoute(
                       builder:
-                          (context) => const cprogrammingScreen(
+                          (context) => const CProgrammingScreen(
                             courseName: 'C Programming',
                           ),
                     ),
@@ -207,18 +219,35 @@ class _courseScreenState extends State<courseScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            IconButton(
-                              onPressed: () => toggleBookmark('C Programming'),
-                              icon: Icon(
-                                bookmarkedCourses['C Programming'] == true
-                                    ? Icons.bookmark
-                                    : Icons.bookmark_border_outlined,
-                                size: 25,
-                                color:
+                            Row(
+                              children: [
+                                IconButton(
+                                  padding: EdgeInsets.zero,
+                                  constraints: BoxConstraints(),
+                                  onPressed: () {},
+                                  icon: Icon(
+                                    Icons.workspace_premium,
+                                    color: Colors.amber,
+                                  ),
+                                ),
+                                IconButton(
+                                  padding: EdgeInsets.zero,
+                                  constraints: BoxConstraints(),
+                                  onPressed:
+                                      () => toggleBookmark('C Programming'),
+                                  icon: Icon(
                                     bookmarkedCourses['C Programming'] == true
-                                        ? Colors.green
-                                        : Colors.grey,
-                              ),
+                                        ? Icons.bookmark
+                                        : Icons.bookmark_border_outlined,
+                                    size: 25,
+                                    color:
+                                        bookmarkedCourses['C Programming'] ==
+                                                true
+                                            ? Colors.green
+                                            : Colors.grey,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -278,24 +307,215 @@ class _courseScreenState extends State<courseScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            IconButton(
-                              onPressed: () => toggleBookmark('Java Basics'),
-                              icon: Icon(
-                                bookmarkedCourses['Java Basics'] == true
-                                    ? Icons.bookmark
-                                    : Icons.bookmark_border_outlined,
-                                size: 25,
-                                color:
+                            Row(
+                              children: [
+                                IconButton(
+                                  padding: EdgeInsets.zero,
+                                  constraints: BoxConstraints(),
+                                  onPressed: () {},
+                                  icon: Icon(
+                                    Icons.workspace_premium,
+                                    color: Colors.amber,
+                                  ),
+                                ),
+                                IconButton(
+                                  padding: EdgeInsets.zero,
+                                  constraints: BoxConstraints(),
+                                  onPressed:
+                                      () => toggleBookmark('Java Basics'),
+                                  icon: Icon(
                                     bookmarkedCourses['Java Basics'] == true
-                                        ? Colors.green
-                                        : Colors.grey,
-                              ),
+                                        ? Icons.bookmark
+                                        : Icons.bookmark_border_outlined,
+                                    size: 25,
+                                    color:
+                                        bookmarkedCourses['Java Basics'] == true
+                                            ? Colors.green
+                                            : Colors.grey,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                         SizedBox(height: 20),
                         Text(
                           "Get started with Java, an object-oriented language essential for Android app development and enterprise systems. Explore core concepts and practical applications.",
+                        ),
+                        SizedBox(height: 20),
+                        LinearProgressIndicator(
+                          value: 0.7,
+                          color: Colors.amber,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) =>
+                              const htmlcssScreen(courseName: 'HTML&CSS'),
+                    ),
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.white,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.blueAccent),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.web,
+                                size: 25,
+                                color: Colors.blueAccent,
+                              ),
+                            ),
+                            Text(
+                              'HTML & CSS',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                IconButton(
+                                  padding: EdgeInsets.zero,
+                                  constraints: BoxConstraints(),
+                                  onPressed: () {},
+                                  icon: Icon(
+                                    Icons.workspace_premium,
+                                    color: Colors.amber,
+                                  ),
+                                ),
+                                IconButton(
+                                  padding: EdgeInsets.zero,
+                                  constraints: BoxConstraints(),
+                                  onPressed: () => toggleBookmark('HTML&CSS'),
+                                  icon: Icon(
+                                    bookmarkedCourses['HTML&CSS'] == true
+                                        ? Icons.bookmark
+                                        : Icons.bookmark_border_outlined,
+                                    size: 25,
+                                    color:
+                                        bookmarkedCourses['HTML&CSS'] == true
+                                            ? Colors.green
+                                            : Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        Text(
+                          "Welcome to HTML Basics Tutorial HTML stands for HyperText Markup Language. It’s the standard language for creating web pages. With HTML, you structure content like headings, paragraphs, links, images, and more on a website.",
+                        ),
+                        SizedBox(height: 20),
+                        LinearProgressIndicator(
+                          value: 0.7,
+                          color: Colors.amber,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => const databaseScreen(
+                            courseName: 'Database Management',
+                          ),
+                    ),
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.white,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.blueAccent),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.web,
+                                size: 25,
+                                color: Colors.blueAccent,
+                              ),
+                            ),
+                            Text(
+                              'Database Management',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                IconButton(
+                                  padding: EdgeInsets.zero,
+                                  constraints: BoxConstraints(),
+                                  onPressed: () {},
+                                  icon: Icon(
+                                    Icons.workspace_premium,
+                                    color: Colors.amber,
+                                  ),
+                                ),
+                                IconButton(
+                                  padding: EdgeInsets.zero,
+                                  constraints: BoxConstraints(),
+                                  onPressed: () => toggleBookmark('Database'),
+                                  icon: Icon(
+                                    bookmarkedCourses['Database'] == true
+                                        ? Icons.bookmark
+                                        : Icons.bookmark_border_outlined,
+                                    size: 25,
+                                    color:
+                                        bookmarkedCourses['Database'] == true
+                                            ? Colors.green
+                                            : Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        Text(
+                          "Welcome to Database Management Systems (DBMS).A database is a structured collection of data, and a DBMS is software used to store, manage, and retrieve that data efficiently.",
                         ),
                         SizedBox(height: 20),
                         LinearProgressIndicator(
@@ -351,19 +571,35 @@ class _courseScreenState extends State<courseScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            IconButton(
-                              onPressed:
-                                  () => toggleBookmark('Web Development'),
-                              icon: Icon(
-                                bookmarkedCourses['Web Development'] == true
-                                    ? Icons.bookmark
-                                    : Icons.bookmark_border_outlined,
-                                size: 25,
-                                color:
+                            Row(
+                              children: [
+                                IconButton(
+                                  padding: EdgeInsets.zero,
+                                  constraints: BoxConstraints(),
+                                  onPressed: () {},
+                                  icon: Icon(
+                                    Icons.workspace_premium,
+                                    color: Colors.amber,
+                                  ),
+                                ),
+                                IconButton(
+                                  padding: EdgeInsets.zero,
+                                  constraints: BoxConstraints(),
+                                  onPressed:
+                                      () => toggleBookmark('Web Development'),
+                                  icon: Icon(
                                     bookmarkedCourses['Web Development'] == true
-                                        ? Colors.green
-                                        : Colors.grey,
-                              ),
+                                        ? Icons.bookmark
+                                        : Icons.bookmark_border_outlined,
+                                    size: 25,
+                                    color:
+                                        bookmarkedCourses['Web Development'] ==
+                                                true
+                                            ? Colors.green
+                                            : Colors.grey,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -382,72 +618,6 @@ class _courseScreenState extends State<courseScreen> {
                 ),
               ),
               SizedBox(height: 10),
-              GestureDetector(
-                onTap: () {
-                  print('Database Management Tapped');
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(8),
-                    color: Colors.white,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.blueAccent),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.data_array,
-                                size: 25,
-                                color: Colors.blueAccent,
-                              ),
-                            ),
-                            Text(
-                              'Database Management',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            IconButton(
-                              onPressed:
-                                  () => toggleBookmark('Database Management'),
-                              icon: Icon(
-                                bookmarkedCourses['Database Management'] == true
-                                    ? Icons.bookmark
-                                    : Icons.bookmark_border_outlined,
-                                size: 25,
-                                color:
-                                    bookmarkedCourses['Database Management'] ==
-                                            true
-                                        ? Colors.green
-                                        : Colors.grey,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 20),
-                        Text(
-                          "Understand relational databases and SQL. Design, query, and manage databases efficiently. Essential for any data-driven application development.",
-                        ),
-                        SizedBox(height: 20),
-                        LinearProgressIndicator(
-                          value: 0.7,
-                          color: Colors.amber,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
               allRequests.isEmpty
                   ? const Center(child: Text('No requests yet'))
                   : ListView.builder(
@@ -458,7 +628,20 @@ class _courseScreenState extends State<courseScreen> {
                       final request = allRequests[index];
                       return GestureDetector(
                         onTap: () {
-                          print('${request['title']} course Tapped');
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => restofthecourseScreen(
+                                    courseName: request['title'],
+                                    canEdit:
+                                        (request['currentuserId'] ==
+                                                request['userId'])
+                                            ? true
+                                            : false,
+                                  ),
+                            ),
+                          );
                         },
                         child: Container(
                           decoration: BoxDecoration(

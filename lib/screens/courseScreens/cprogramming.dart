@@ -1,31 +1,41 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class cprogrammingScreen extends StatefulWidget {
-  final String courseName;
-  const cprogrammingScreen({super.key, required this.courseName});
-
-  @override
-  State<cprogrammingScreen> createState() => _cprogrammingScreenState();
+Color getRandomColor() {
+  Random random = Random();
+  return Color.fromARGB(
+    255,
+    random.nextInt(256),
+    random.nextInt(256),
+    random.nextInt(256),
+  );
 }
 
-class _cprogrammingScreenState extends State<cprogrammingScreen> {
-  List<Map<String, dynamic>> allcourses = [];
+class CProgrammingScreen extends StatefulWidget {
+  final String courseName;
+  const CProgrammingScreen({super.key, required this.courseName});
+
+  @override
+  State<CProgrammingScreen> createState() => _CProgrammingScreenState();
+}
+
+class _CProgrammingScreenState extends State<CProgrammingScreen> {
+  List<Map<String, dynamic>> allCourses = [];
+  bool loading = true;
+
   @override
   void initState() {
     super.initState();
-    ensureCoursesProgressExists().then((_) {
-      loadData();
-    });
+    ensureCoursesProgressExists().then((_) => loadData());
   }
 
   Future<void> ensureCoursesProgressExists() async {
     final userId = FirebaseAuth.instance.currentUser!.uid;
     final userDoc = FirebaseFirestore.instance.collection('users').doc(userId);
-
     final docSnapshot = await userDoc.get();
-
     if (!docSnapshot.exists) {
       await userDoc.set({'coursesProgress': []});
     } else {
@@ -37,31 +47,30 @@ class _cprogrammingScreenState extends State<cprogrammingScreen> {
   }
 
   Future<void> loadData() async {
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-    CollectionReference courses = firestore.collection('DefaultCourses');
-    CollectionReference courses2 = firestore.collection('ApprovedCourses');
-    QuerySnapshot querySnapshot = await courses.get();
-    QuerySnapshot querySnapshot2 = await courses2.get();
+    final firestore = FirebaseFirestore.instance;
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final docData = await firestore.collection('users').doc(userId).get();
+    final userProgress = List<Map<String, dynamic>>.from(
+      docData['coursesProgress'] ?? [],
+    );
+
+    final defaultCoursesSnap =
+        await firestore.collection('DefaultCourses').get();
+    final approvedCoursesSnap =
+        await firestore.collection('ApprovedCourses').get();
 
     List<Map<String, dynamic>> tempList = [];
-    List<Map<String, dynamic>> tempList2 = [];
 
-    final docData =
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .get();
-
-    for (var doc in querySnapshot.docs) {
-      final userId = doc.id;
-      final data = doc.data() as Map<String, dynamic>;
+    for (var snap in [
+      ...defaultCoursesSnap.docs,
+      ...approvedCoursesSnap.docs,
+    ]) {
+      final data = snap.data() as Map<String, dynamic>;
       final courses = List<Map<String, dynamic>>.from(data['courses'] ?? []);
-      for (var course in courses) {
-        final contentList = (course['content'] as List<dynamic>? ?? []);
-        final contentProgress =
-            (docData['coursesProgress'] as List<dynamic>? ?? []);
 
-        final progressForCourse = contentProgress.firstWhere(
+      for (var course in courses) {
+        final contentList = List.from(course['content'] ?? []);
+        final progressForCourse = userProgress.firstWhere(
           (p) => p['title'] == course['title'],
           orElse: () => {'contentfinished': []},
         );
@@ -79,244 +88,240 @@ class _cprogrammingScreenState extends State<cprogrammingScreen> {
             }).toList();
 
         tempList.add({
-          'userId': userId,
           'title': course['title'],
           'description': course['description'],
           'content': combined,
         });
       }
     }
-    for (var doc in querySnapshot2.docs) {
-      final userId = doc.id;
-      final data = doc.data() as Map<String, dynamic>;
-      final courses = List<Map<String, dynamic>>.from(data['courses'] ?? []);
 
-      for (var course in courses) {
-        final contentList = (course['content'] as List<dynamic>? ?? []);
-        final contentProgress =
-            (docData['coursesProgress'] as List<dynamic>? ?? []);
-
-        final progressForCourse = contentProgress.firstWhere(
-          (p) => p['title'] == course['title'],
-          orElse: () => {'contentfinished': []},
-        );
-        final finishedList = List<bool>.from(
-          progressForCourse['contentfinished'] ?? [],
-        );
-
-        final combined =
-            contentList.asMap().entries.map((entry) {
-              final i = entry.key;
-              final content = entry.value;
-              final finished =
-                  i < finishedList.length ? finishedList[i] : false;
-              return {'content': content, 'finished': finished};
-            }).toList();
-
-        tempList2.add({
-          'userId': userId,
-          'title': course['title'],
-          'description': course['description'],
-          'content': combined,
-        });
-      }
-    }
     setState(() {
-      allcourses = tempList + tempList2;
+      allCourses = tempList;
+      loading = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    final filteredCourses =
+        allCourses
+            .where(
+              (course) => course['title'].toString().toLowerCase().contains(
+                widget.courseName.toLowerCase(),
+              ),
+            )
+            .toList();
+
+    if (filteredCourses.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('C Programming'),
+          backgroundColor: const Color.fromARGB(255, 3, 62, 91),
+          foregroundColor: Colors.white,
+        ),
+        body: const Center(child: Text('No courses available')),
+      );
+    }
+
+    return CourseContentPager(course: filteredCourses[0]);
+  }
+}
+
+class CourseContentPager extends StatefulWidget {
+  final Map<String, dynamic> course;
+  const CourseContentPager({super.key, required this.course});
+
+  @override
+  State<CourseContentPager> createState() => _CourseContentPagerState();
+}
+
+class _CourseContentPagerState extends State<CourseContentPager> {
+  int currentIndex = 0;
+  late List contentList;
+
+  @override
+  void initState() {
+    super.initState();
+    contentList = widget.course['content'] ?? [];
+    loadLocalProgress();
+  }
+
+  Future<void> loadLocalProgress() async {
+    final prefs = await SharedPreferences.getInstance();
+    String key = 'progress_${widget.course['title']}';
+    List<String>? savedFlags = prefs.getStringList(key);
+    if (savedFlags != null) {
+      for (int i = 0; i < savedFlags.length && i < contentList.length; i++) {
+        contentList[i]['finished'] = savedFlags[i] == 'true';
+      }
+      setState(() {});
+    }
+  }
+
+  Future<void> saveProgress(int index) async {
+    final prefs = await SharedPreferences.getInstance();
+    String key = 'progress_${widget.course['title']}';
+    List<String> finishedFlags =
+        contentList
+            .map((item) => (item['finished'] == true).toString())
+            .toList();
+    await prefs.setStringList(key, finishedFlags);
+
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final userDoc = FirebaseFirestore.instance.collection('users').doc(userId);
+    final docSnapshot = await userDoc.get();
+    final coursesProgress = List<Map<String, dynamic>>.from(
+      docSnapshot['coursesProgress'] ?? [],
+    );
+    final courseIndex = coursesProgress.indexWhere(
+      (p) => p['title'] == widget.course['title'],
+    );
+    if (courseIndex != -1) {
+      final finishedList = List<bool>.from(
+        coursesProgress[courseIndex]['progress'] ?? [],
+      );
+      
+  }
+
+  Future<void> toggleFinished(int index) async {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final userDoc = FirebaseFirestore.instance.collection('users').doc(userId);
+    final docSnapshot = await userDoc.get();
+    final coursesProgress = List<Map<String, dynamic>>.from(
+      docSnapshot['coursesProgress'] ?? [],
+    );
+    final courseIndex = coursesProgress.indexWhere(
+      (p) => p['title'] == widget.course['title'],
+    );
+    if (courseIndex != -1) {
+      final finishedList = List<bool>.from(
+        coursesProgress[courseIndex]['contentfinished'] ?? [],
+      );
+      while (finishedList.length <= index) finishedList.add(false);
+      finishedList[index] = !(finishedList[index]);
+      coursesProgress[courseIndex]['contentfinished'] = finishedList;
+    } else {
+      coursesProgress.add({
+        'title': widget.course['title'],
+        'contentfinished': List.generate(contentList.length, (i) => i == index),
+      });
+    }
+    await userDoc.update({'coursesProgress': coursesProgress});
+    await saveProgress();
+  }
+
+  void nextPage() {
+    if (currentIndex < contentList.length - 1) {
+      setState(() {
+        currentIndex++;
+      });
+    }
+  }
+
+  void prevPage() {
+    if (currentIndex > 0) {
+      setState(() {
+        currentIndex--;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final currentContent = contentList[currentIndex];
     return Scaffold(
       appBar: AppBar(
-        title: const Text('C Programming'),
+        title: Text(widget.course['title'] ?? 'Course'),
         backgroundColor: const Color.fromARGB(255, 3, 62, 91),
-        foregroundColor: Colors.white,
-        centerTitle: true,
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            allcourses.isEmpty
-                ? const Center(child: Text('No courses available'))
-                : ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: allcourses.length,
-                  itemBuilder: (context, index) {
-                    final course = allcourses[index];
-                    if (course['title']
-                        .toString()
-                        .toLowerCase()
-                        .trim()
-                        .contains(widget.courseName.toLowerCase().trim())) {
-                      return SingleChildScrollView(
-                        child: Card(
-                          margin: const EdgeInsets.all(10),
-                          child: Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      course['title'] ?? 'No Title',
-                                      style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  course['description'] ?? 'No Description',
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                                const SizedBox(height: 10),
-                                ...List<Widget>.from(
-                                  (course['content']).map(
-                                    (content) => Padding(
-                                      padding: const EdgeInsets.only(
-                                        bottom: 10.0,
-                                      ),
-                                      child: Container(
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                              color: const Color.fromARGB(
-                                                255,
-                                                3,
-                                                62,
-                                                91,
-                                              ),
-                                            ),
-                                          ),
-                                          child: Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              Expanded(
-                                                child: Padding(
-                                                  padding: const EdgeInsets.all(
-                                                    10.0,
-                                                  ),
-                                                  child: Text(
-                                                    content['content'] ?? '',
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              IconButton(
-                                                onPressed: () async {
-                                                  setState(() {
-                                                    content['finished'] =
-                                                        !(content['finished']
-                                                                as bool? ??
-                                                            false);
-                                                  });
-
-                                                  final userId =
-                                                      FirebaseAuth
-                                                          .instance
-                                                          .currentUser!
-                                                          .uid;
-                                                  final userDoc =
-                                                      FirebaseFirestore.instance
-                                                          .collection('users')
-                                                          .doc(userId);
-
-                                                  final docSnapshot =
-                                                      await userDoc.get();
-                                                  final coursesProgress = List<
-                                                    Map<String, dynamic>
-                                                  >.from(
-                                                    docSnapshot['coursesProgress'] ??
-                                                        [],
-                                                  );
-
-                                                  final courseIndex =
-                                                      coursesProgress
-                                                          .indexWhere(
-                                                            (p) =>
-                                                                p['title'] ==
-                                                                course['title'],
-                                                          );
-
-                                                  final contentIndex =
-                                                      (course['content']
-                                                              as List)
-                                                          .indexOf(content);
-
-                                                  if (courseIndex != -1) {
-                                                    final finishedList = List<
-                                                      bool
-                                                    >.from(
-                                                      coursesProgress[courseIndex]['contentfinished'] ??
-                                                          [],
-                                                    );
-
-                                                    while (finishedList
-                                                            .length <=
-                                                        contentIndex) {
-                                                      finishedList.add(false);
-                                                    }
-
-                                                    finishedList[contentIndex] =
-                                                        content['finished'];
-                                                    coursesProgress[courseIndex]['contentfinished'] =
-                                                        finishedList;
-                                                  } else {
-                                                    coursesProgress.add({
-                                                      'title': course['title'],
-                                                      'contentfinished':
-                                                          (course['content']
-                                                                  as List)
-                                                              .map(
-                                                                (c) =>
-                                                                    c == content
-                                                                        ? content['finished']
-                                                                        : false,
-                                                              )
-                                                              .toList(),
-                                                    });
-                                                  }
-
-                                                  await userDoc.update({
-                                                    'coursesProgress':
-                                                        coursesProgress,
-                                                  });
-                                                },
-                                                icon: Icon(
-                                                  (content['finished']
-                                                              as bool? ??
-                                                          false)
-                                                      ? Icons.check_box
-                                                      : Icons
-                                                          .check_box_outline_blank,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    }
-                  },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(width: 3, color: getRandomColor()),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-          ],
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      widget.course['title'] ?? '',
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      widget.course['description'] ?? '',
+                      style: const TextStyle(fontSize: 16, color: Colors.grey),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      currentContent['content'] ?? '',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  if (currentIndex > 0)
+                    ElevatedButton(
+                      onPressed: prevPage,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey,
+                      ),
+                      child: const Text('Previous'),
+                    ),
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () async {
+                          await toggleFinished(currentIndex);
+                          setState(() {
+                            currentContent['finished'] =
+                                !(currentContent['finished'] ?? false);
+                          });
+                          await saveProgress();
+                        },
+                        icon: Icon(
+                          currentContent['finished'] ?? false
+                              ? Icons.check_box
+                              : Icons.check_box_outline_blank,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: nextPage,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.teal,
+                        ),
+                        child: Text(
+                          currentIndex < contentList.length - 1
+                              ? 'Next'
+                              : 'Finish',
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'SignUp_screen.dart';
 import 'dashBoard.dart';
-// import '../services/storage_service.dart';
+import 'forgotpassword.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,6 +18,24 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
   bool rememberMe = false;
   bool isLoading = false;
+  bool _obscurePassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool? loggedIn = prefs.getBool('rememberMe');
+    if (loggedIn == true) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const dashBoardScreen()),
+      );
+    }
+  }
 
   Future<void> _login() async {
     final email = emailController.text.trim();
@@ -35,9 +54,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final user = userCredential.user;
       if (user != null) {
-        // if (rememberMe) {
-        //   await StorageService.saveUserData(user.uid, '', email, '');
-        // }
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        if (rememberMe) {
+          await prefs.setBool('rememberMe', true);
+          await prefs.setString('email', email);
+          await prefs.setString('password', password);
+        } else {
+          await prefs.clear();
+        }
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const dashBoardScreen()),
@@ -51,8 +76,6 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() => isLoading = false);
     }
   }
-
-  bool _obscurePassword = true;
 
   @override
   Widget build(BuildContext context) {
@@ -111,9 +134,9 @@ class _LoginScreenState extends State<LoginScreen> {
               controller: passwordController,
               obscureText: _obscurePassword,
               decoration: InputDecoration(
-                prefixIcon: Icon(Icons.lock),
+                prefixIcon: const Icon(Icons.lock),
                 labelText: 'Password',
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
                 suffixIcon: IconButton(
                   icon: Icon(
                     _obscurePassword ? Icons.visibility : Icons.visibility_off,
@@ -126,7 +149,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
-
             const SizedBox(height: 10),
             Row(
               children: [
@@ -141,7 +163,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 const Text('Remember Me'),
                 const Spacer(),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const forgotpasswordScreen(),
+                      ),
+                    );
+                  },
                   child: const Text(
                     'Forgot Password?',
                     style: TextStyle(color: Colors.blue),

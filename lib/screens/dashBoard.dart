@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 //importing Screens for navigation
 import 'courses.dart';
@@ -8,6 +9,12 @@ import 'quiz.dart';
 import 'about.dart';
 import 'Login_screen.dart';
 import 'adminApproval.dart';
+// Importing screens for navigation
+import 'courseScreens/cprogramming.dart';
+import 'courseScreens/java.dart';
+import 'courseScreens/htmlcss.dart';
+import 'courseScreens/webdevelopment.dart';
+import 'package:w3cst/screens/courseScreens/database.dart';
 
 class dashBoardScreen extends StatefulWidget {
   const dashBoardScreen({super.key});
@@ -19,21 +26,53 @@ class dashBoardScreen extends StatefulWidget {
 class _dashBoardScreenState extends State<dashBoardScreen> {
   final List<Map<String, dynamic>> slides = [
     {
-      'image': 'assets/images/carouselDashboard/carousel1.jpeg',
-      'title': 'Learn Flutter Like a Pro',
+      'image': 'assets/images/cprogramming.png',
+      'title': 'C Programming',
       'desc': 'Master widgets, animations, and backend connections!',
+      'screen': 'CProgrammingScreen',
     },
     {
-      'image': 'assets/images/carouselDashboard/carousel2.jpeg',
-      'title': 'Build Cool Projects',
+      'image': 'assets/images/java.png',
+      'title': 'Java Basics',
       'desc': 'From portfolios to IoT dashboards — make ideas real.',
+      'screen': 'javaScreen',
     },
     {
-      'image': 'assets/images/carouselDashboard/carousel3.jpeg',
-      'title': 'Join the Dev Revolution',
+      'image': 'assets/images/htmlcss.png',
+      'title': 'Html & Css',
       'desc': 'Code smart, build fast, and ship proudly',
+      'screen': 'htmlcssScreen',
+    },
+    {
+      'image': 'assets/images/web.png',
+      'title': 'Web Development',
+      'desc': 'Code smart, build fast, and ship proudly',
+      'screen': 'webdevelopmentScreen',
+    },
+    {
+      'image': 'assets/images/database.png',
+      'title': 'Database Management',
+      'desc': 'Code smart, build fast, and ship proudly',
+      'screen': 'databaseScreen',
     },
   ];
+
+  Widget _getScreen(String screenName) {
+    switch (screenName) {
+      case 'CProgrammingScreen':
+        return const CProgrammingScreen(courseName: 'C Programming');
+      case 'javaScreen':
+        return const javaScreen(courseName: 'Java');
+      case 'htmlcssScreen':
+        return const htmlcssScreen(courseName: 'HTML&CSS');
+      case 'webdevelopmentScreen':
+        return const webdevelopmentScreen(courseName: 'Web Development');
+      case 'databaseScreen':
+        return const databaseScreen(courseName: 'Database Management');
+      default:
+        return const Scaffold(body: Center(child: Text('Screen not found')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +87,8 @@ class _dashBoardScreenState extends State<dashBoardScreen> {
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.remove('rememberMe');
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -178,7 +219,14 @@ class _dashBoardScreenState extends State<dashBoardScreen> {
                                   const SizedBox(height: 8),
                                   ElevatedButton(
                                     onPressed: () {
-                                      debugPrint('Pressed ${slide['title']}');
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) =>
+                                                  _getScreen(slide['screen']),
+                                        ),
+                                      );
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.deepPurple,
@@ -210,146 +258,134 @@ class _dashBoardScreenState extends State<dashBoardScreen> {
                 mainAxisSpacing: 5,
                 crossAxisSpacing: 12,
                 children: [
-                  Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    elevation: 3,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Image.asset(
-                                'assets/images/Icons/courses.png',
-                                width: 30,
-                                height: 30,
-                                color: Colors.blue,
-                              ),
-                              const Text(
-                                'Courses',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const courseScreen(),
+                        ),
+                      );
+                    },
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      elevation: 3,
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Image.asset(
+                                  'assets/images/Icons/courses.png',
+                                  width: 30,
+                                  height: 30,
+                                  color: Colors.blue,
                                 ),
-                                textAlign: TextAlign.start,
-                              ),
-                              Image.asset(
-                                'assets/images/Icons/rightarrow.png',
-                                width: 24,
-                                height: 24,
-                                color: Colors.blue,
-                              ),
-                            ],
-                          ),
+                                const Text(
+                                  'Courses',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                  textAlign: TextAlign.start,
+                                ),
+                                Image.asset(
+                                  'assets/images/Icons/rightarrow.png',
+                                  width: 24,
+                                  height: 24,
+                                  color: Colors.blue,
+                                ),
+                              ],
+                            ),
 
-                          const Text(
-                            'Explore all learning paths',
-                            textAlign: TextAlign.start,
-                            style: TextStyle(fontSize: 13),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (context) => const courseScreen(),
-                                    ),
-                                  );
-                                },
-                                child: const Text(
+                            const Text(
+                              'Explore all learning paths',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(fontSize: 13),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
                                   'Go to Courses',
-                                  style: TextStyle(fontSize: 12),
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                    fontSize: 12,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 4),
-                              Image.asset(
-                                'assets/images/Icons/rightarrow.png',
-                                width: 16,
-                                height: 16,
-                                color: Colors.blue,
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                  Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    elevation: 3,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Image.asset(
-                                'assets/images/Icons/bookmarks.png',
-                                width: 30,
-                                height: 30,
-                                color: Colors.blue,
-                              ),
-                              const Text(
-                                'Bookmarks',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const bookmarkScreen(),
+                        ),
+                      );
+                    },
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      elevation: 3,
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Image.asset(
+                                  'assets/images/Icons/bookmarks.png',
+                                  width: 30,
+                                  height: 30,
+                                  color: Colors.blue,
                                 ),
-                              ),
-                              Image.asset(
-                                'assets/images/Icons/rightarrow.png',
-                                width: 24,
-                                height: 24,
-                                color: Colors.blue,
-                              ),
-                            ],
-                          ),
+                                const Text(
+                                  'Bookmarks',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Image.asset(
+                                  'assets/images/Icons/rightarrow.png',
+                                  width: 24,
+                                  height: 24,
+                                  color: Colors.blue,
+                                ),
+                              ],
+                            ),
 
-                          const Text(
-                            'Your saved Lessons',
-                            textAlign: TextAlign.start,
-                            style: TextStyle(fontSize: 13),
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (context) => const bookmarkScreen(),
-                                    ),
-                                  );
-                                },
-                                child: const Text(
+                            const Text(
+                              'Your saved Lessons',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(fontSize: 13),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
                                   'Go to Bookmarks',
                                   style: TextStyle(fontSize: 12),
                                 ),
-                              ),
-                              Image.asset(
-                                'assets/images/Icons/rightarrow.png',
-                                width: 16,
-                                height: 16,
-                                color: Colors.blue,
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
